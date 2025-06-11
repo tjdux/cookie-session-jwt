@@ -1,0 +1,8 @@
+# 토큰 검증
+###GET
+GET http://localhost:3000/user HTTP/1.1
+Authorization: Bearer {token}
+
+# 토큰 생성
+### GET
+GET http://localhost:3000/login HTTP/1.1
