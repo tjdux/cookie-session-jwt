@@ -14,7 +14,7 @@ datasource db {
 }
 
 // User 모델 정의
-model Users { // 테이블 이름을 Users로 지정 (대부분의 경우 복수형)
+model User { // 테이블 이름을 Users로 지정 (대부분의 경우 복수형)
   userId    Int      @id @default(autoincrement()) @map("userId")
   email     String   @unique @map("email")
   password  String   @map("password")
@@ -40,7 +40,7 @@ model Post {
   // Post와 User의 관계 정의: 하나의 게시글은 한 명의 사용자에 의해 작성됩니다.
   // fields: [userId]는 현재 Post 모델의 userId 필드가 외래 키임을 나타냅니다.
   // references: [userId]는 Users 모델의 userId 필드를 참조함을 나타냅니다.
-  User      Users    @relation(fields: [userId], references: [userId])
+  User      User    @relation(fields: [userId], references: [userId])
 
   @@map("Posts") // 데이터베이스 테이블 이름을 'Posts'로 매핑
 
