@@ -9,7 +9,7 @@ POST http://localhost:3000/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "testuser3@example.com",
+  "email": "testuser5@example.com",
   "password": "12345678"
 }
 
@@ -19,7 +19,7 @@ POST http://localhost:3000/sign-up HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "testuser2@example.com",
+  "email": "testuser7@example.com",
   "password": "12345678",
   "nickname": "testuser"
 }

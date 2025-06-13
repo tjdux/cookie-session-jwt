@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../middleware/authenticate-middleware')
 const prisma = require('../utils/prisma/index')
+const bcrypt = require('bcrypt')
 
 const {signUpValidator, handleValidationResult, loginValidator} = require('../middleware/validation-middleware')
 require('dotenv').config()
@@ -13,6 +14,8 @@ require('dotenv').config()
  *  1-2. 이메일 중복 확인
  *  2. 데이터 베이스에 저장 
  */
+
+
 
 // 회원가입
 router.post('/sign-up', signUpValidator, handleValidationResult,  async (req, res, next) => {
@@ -28,18 +31,24 @@ router.post('/sign-up', signUpValidator, handleValidationResult,  async (req, re
       return next(new Error("ExistingEmail"))
     }
 
+    const saltRound = 10;
+    const salt = await bcrypt.genSalt(saltRound);
+    // salt: 생성될 때마다 값이 변경됨
+
+    const bycrytPassword = await bcrypt.hash(password, salt)
+
     // 2. 데이터 베이스에 저장
     await prisma.user.create({
       data: {
         email,
-        password,
+        password: bycrytPassword,
         nickname
       }
     })
 
     return res.status(201).json({
       message: "회원가입 완료"
-  })
+    })
   } catch (e) {
     return next(new Error("DataBaseError"))
   }
@@ -78,7 +87,8 @@ router.post('/login', loginValidator, handleValidationResult, async (req, res, n
     return next(new Error("UserNotFound"))
   }
 
-  if (user.password !== password){
+  const isPasswordVerified = await bcrypt.compare(password, user.password)
+  if (!isPasswordVerified){
     return next(new Error("passwordError"))
   }
 
