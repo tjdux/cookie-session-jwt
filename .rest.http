@@ -1,4 +1,4 @@
-@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0OTgwNjE3OCwiZXhwIjoxNzQ5ODQyMTc4fQ.7hZs_fqet4-aju3zWWm9cmVUlsrBC1PZ-1n6NLwEUnI
+@jwt =
 
 # 토큰 검증
 ###GET
