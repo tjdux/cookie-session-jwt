@@ -3,7 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../middleware/authenticate-middleware')
 const prisma = require('../utils/prisma/index')
-const { body } = require('express-validator');
+
+const {signUpValidator, handleValidationResult, loginValidator} = require('../middleware/validation-middleware')
 require('dotenv').config()
 
 /** 회원가입
@@ -14,19 +15,8 @@ require('dotenv').config()
  */
 
 // 회원가입
-router.post('/sign-up', body('email').notEmpty(),  async (req, res, next) => {
+router.post('/sign-up', signUpValidator, handleValidationResult,  async (req, res, next) => {
   const { email, password, nickname } = req.body;
-
-  // 1. 닉네임, 이메일, 비밀번호 입력 검증
-  if (!email || !password || !nickname) {
-    return next(new Error("InputValidation"))
-  }
-
-  // 1-1. 비밀번호 6글자 이상
-  if (password.length < 6) {
-    return next(new Error("PasswordValidation"))
-  }
-
 
   try {
     // 1-2. 이메일 중복 확인
@@ -67,20 +57,38 @@ router.get('/set-session', (req, res) => {
   })
 })
 
-// 토큰 생성
-router.get('/login', (req, res, next) => {
-  const user = {
-    id: 1,
-    username: "john",
-    role: "user"
+/** 로그인 API
+ * 1. 이메일, 비밀번호 입력 여부 확인 
+ * 2. 이메일에 해당하는 사용자 찾기 
+ * 3. 사용자 존재 여부 확인
+ * 4. 비밀번호 일치 여부 확인 
+ * 5. jwt 토큰 발급 
+ * 6. jwt 토큰 전달 
+*/
+
+//  로그인, 토큰 생성
+router.post('/login', loginValidator, handleValidationResult, async (req, res, next) => {
+  const { email, password } = req.body;
+  
+  const user = await prisma.user.findUnique({
+    where: { email } 
+  })
+
+  if(!user){    
+    return next(new Error("UserNotFound"))
   }
 
-  const token = jwt.sign(user, process.env.SECRET_KEY, {
-    expiresIn: '5h'
-  })
-  console.log(token);
+  if (user.password !== password){
+    return next(new Error("passwordError"))
+  }
 
-  return res.json({
+  const token = jwt.sign({
+    userId: user.userId
+  }, process.env.SECRET_KEY, {
+    expiresIn: '10h'
+  })
+
+  return res.status(200).send({
     token
   })
 })
@@ -91,22 +99,18 @@ router.get('/user', authenticateToken, (req, res, next) => {
   res.send(req.user);
 })
 
+// 쿠키 설정
 router.get('/set-cookie', (req, res) => { 
   res.cookie("login", "true");
   return res.send("cookie set")
 })
 
+// 쿠키 가져오기
 router.get('/get-cookie', (req, res) => {
   const cookies = req.cookies
   return res.json({
     cookies
   })
 })
-
-const signUpValidator = [
-  body('email')
-    .isEmail().withMessage("이메일 형식이 아닙니다.")
-    .notEmpty().withMessage("이메일이 없습니다.")
-]
 
 module.exports = router;

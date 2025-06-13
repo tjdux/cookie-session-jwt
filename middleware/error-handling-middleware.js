@@ -1,9 +1,9 @@
 module.exports = function (err, req, res, next) {
   console.error(err.message)
   switch(err.message){
-    case 'wrong password': 
+    case 'passwordError': 
       return res.status(400).send({
-        errorMessage: "잘못된 비밀번호"
+        errorMessage: "일치하지 않는 비밀번호"
       })
     case 'ExistingEmail':
       return res.status(400).send({
@@ -14,6 +14,9 @@ module.exports = function (err, req, res, next) {
         errorMessage: "접근 권한이 없습니다."
       })
     case "UserNotFound":
+      return res.status(404).send({
+        errorMessage: "존재하지 않는 유저"
+      })
     case "Need login":
     case "accessTokenNotMatched":
       return res.status(401).send({
