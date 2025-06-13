@@ -5,18 +5,20 @@ module.exports = function (req, res, next) {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1]
 
-  // req.password = "1234" 입력받았다고 가정
-  req.password = "1234";
+  // // req.password = "1234" 입력받았다고 가정
+  // req.password = "1234";
   
-  if (req.password !== "1234"){
-    return next(new Error("wrong password"))
-  }
+  // if (req.password !== "1234"){
+  //   return next(new Error("wrong password"))
+  // }
 
   const verifiedToken = verifyToken(token)
   
   if (!verifiedToken){
-    return next(new Error('Need login'))
+    return next(new Error('TokenNotMatched'))
   }
+
+  console.log(verifiedToken)
 
   req.user = verifiedToken;
   next();

@@ -1,5 +1,6 @@
 const express = require('express');
 const userRouter = require('./routers/userRouter');
+const postRouter = require('./routers/postRouter')
 require('dotenv').config()
 
 const cookieParser = require('cookie-parser');
@@ -26,6 +27,7 @@ app.use(session({
 }))
 
 app.use('/', userRouter)
+app.use('/posts', postRouter);
 
 // error-handling middleware
 app.use(errorHandlingMiddleware);
